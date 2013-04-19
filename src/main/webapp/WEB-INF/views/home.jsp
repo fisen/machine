@@ -4,7 +4,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Fun with wheels</title>
+		<title>Spirograph</title>
 		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/scripts.js" />"></script>
 		<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/styles.css" />"></link>
@@ -20,12 +20,14 @@
 							data-parent="#accordion2" href="#collapseOne">Toolbox </a>
 					</div>
 					<div id="collapseOne" class="accordion-body collapse in">
-						<div class="accordion-inner">Cogwheels etc...</div>
+						<div class="accordion-inner">
+						<canvas id="toolbox-canvas" class="span12">Your browser does not support canvas :-(</canvas>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div>
-  				<canvas id="main-canvas" class="span12">Your browser does not support canvas :(</canvas>
+  				<canvas id="main-canvas" class="span12">Your browser does not support canvas :-(</canvas>
   			</div>
 	</div>
 	</body>
