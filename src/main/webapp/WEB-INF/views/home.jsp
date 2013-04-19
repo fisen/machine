@@ -11,7 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/bootstrap.min.css" />"></link>
 		<script type="text/javascript" src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
 	</head>
-	<body onload="init()">
+	<body>
 		<div class="row-fluid">
 			<div id="accordion2">
 				<div class="accordion-group">
@@ -25,7 +25,6 @@
 				</div>
 			</div>
 			<div>
-			    <canvas id="canvas" width="640" height="480"></canvas>
   				<canvas id="main-canvas" class="span12">Your browser does not support canvas :(</canvas>
   			</div>
 	</div>
