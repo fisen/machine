@@ -190,15 +190,14 @@ Gear.prototype.setAngle = function(angle) {
 };
 
 /**
- * Rotates the Gear with respect to current angle.
+ * Rotates the Gear with respect to current angle in current direction.
  * 
  * @param angle
- *            of rotation. Positive for clockwise rotation
+ *            of rotation.
  */
 Gear.prototype.rotate = function(angle) {
 	this.angle += angle;
 };
-
 
 /**
  * Drawing function for this object.

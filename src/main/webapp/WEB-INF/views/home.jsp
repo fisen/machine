@@ -23,9 +23,10 @@
 	<div class="row-fluid">
 			<div id="accordion2">
 				<div class="accordion-group">
-					<div class="accordion-heading">
+					<div class="accordion-heading inline">
 						<a class="accordion-toggle" data-toggle="collapse"
 							data-parent="#accordion2" href="#collapseOne">Toolbox </a>
+							<a id="start" class="inline btn inline" href="#">Start</a>
 					</div>
 					<div id="collapseOne" class="accordion-body collapse in">
 						<div class="accordion-inner">

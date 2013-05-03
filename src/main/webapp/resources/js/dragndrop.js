@@ -5,27 +5,29 @@
 $(document).ready(function () {
 
 	var gm = new GearMachine();
-	
+
 	var figures = new Array();
-	var g0 = new Gear(0, 50, 35, "black", 0, 13, 31, 26, 0, 12, 13);
+	var toolFigures = new Array();
+
+	/*	var g0 = new Gear(0, 50, 35, "black", 0, 13, 31, 26, 0, 12, 13);
 	var g1 = new Gear(0, 200, 35, "black", 0, 13, 31, 26, 0, 12, 13);
 	gm.placeGear(g0);
 	gm.placeGear(g1);
 	figures[figures.length] = g0;
-	figures[figures.length] = g1;
+	figures[figures.length] = g1; */
 
 	var canvas = null;
 	var ctx = null;
 	var toolCanvas = null;
 	var toolCtx = null;
+	var currentCanvas = null;
 	var WIDTH = window.innerWidth;
 	var HEIGHT = window.innerHeight;
 	var dragok = false;
-	var currentFigure;
-
-	function clear() {
-		ctx.clearRect(0, 0, WIDTH, HEIGHT);
-	}
+	var currentFigure = null;
+	var startX=0, startY=0;
+	var interval = null;
+	var nbrGears = 0;
 
 	/**
 	 * Initializes the canvases with some test gears.
@@ -35,25 +37,39 @@ $(document).ready(function () {
 		ctx = canvas.getContext("2d");
 		ctx.canvas.width  = WIDTH;
 		ctx.canvas.height = HEIGHT - 100;
-		
+
 		toolCanvas = (document.getElementById("toolbox-canvas"));
 		toolCtx = toolCanvas.getContext("2d");
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 80;
-		g0.draw(toolCtx);
+
+		addToolboxGear(new Gear(0, 0, 0, "black", 0, 13, 31, 26, 0, 12, 13));
+	//	addToolboxGear(new Gear(0, 0, 0, "black", 0, 13, 16, 8, 0, 12, 13));
 		
-		setInterval(draw, 10);
+		draw();
 	}
 
 	/**
-	 * Draw the canvas. This method is called every 10 ms.
+	 * Clears both canvases
+	 */
+	function clear() {
+		ctx.clearRect(0, 0, WIDTH, HEIGHT);
+		toolCtx.clearRect(0, 0, WIDTH, 80);
+	}
+
+	/**
+	 * Draw the canvas. This method is called every 100 ms when the user presses the mouse.
 	 */
 	function draw(){
 		clear();
-		animate();
-		
-	//	for(var n=0; n < figures.length; n++)
-	//		figures[n].draw(ctx);
+		for(var n=0; n < toolFigures.length; n++)
+			toolFigures[n].draw(toolCtx);
+
+		gm.step();
+		gm.draw(ctx);
+
+		if(currentFigure != null)
+			currentFigure.draw(currentCanvas.getContext("2d"));
 	}
 
 	/**
@@ -61,9 +77,10 @@ $(document).ready(function () {
 	 * being dragged.
 	 */
 	function myMove(e){
-		if (dragok){
-			currentFigure.x = e.pageX - canvas.offsetLeft;
-			currentFigure.y = e.pageY - canvas.offsetTop;
+		if (dragok && currentFigure != null){
+			currentCanvas = e.target;
+			currentFigure.setXPos(e.pageX - $(currentCanvas).offset().left);
+			currentFigure.setYPos(e.pageY - $(currentCanvas).offset().top);
 		}
 	}
 
@@ -72,37 +89,96 @@ $(document).ready(function () {
 	 * Checks if a gear was pressed.
 	 */
 	function myDown(e){
-		for(var n=0; n < figures.length; n++){
-			if (e.pageX < figures[n].x + 15 + canvas.offsetLeft && e.pageX > figures[n].x - 15 +
-					canvas.offsetLeft && e.pageY < figures[n].y + 15 + canvas.offsetTop &&
-					e.pageY > figures[n].y -15 + canvas.offsetTop){
-				currentFigure = figures[n];
-				figures[n].x = e.pageX - canvas.offsetLeft;
-				figures[n].y = e.pageY - canvas.offsetTop;
-				dragok = true;
-				canvas.onmousemove = myMove;
-				break;
+		currentCanvas = e.target;
+		if($(currentCanvas).attr("id") == "canvas"){
+			for(var n=0; n < figures.length; n++){
+				if (e.pageX < figures[n].getXPos() + figures[n].getInnerRadius() + $(canvas).offset().left &&
+						e.pageX > figures[n].getXPos() - figures[n].getInnerRadius() + $(canvas).offset().left &&
+						e.pageY < figures[n].getYPos() + figures[n].getInnerRadius() + $(canvas).offset().top &&
+						e.pageY > figures[n].getYPos() - figures[n].getInnerRadius() + $(canvas).offset().top){
+					currentFigure = figures[n];
+					figures.splice(n, n+1);
+					startX = currentFigure.getXPos();
+					startY = currentFigure.getYPos();
+					break;
+				}
 			}
 		}
+		else{
+			for(var n=0; n < toolFigures.length; n++){
+				if (e.pageX < toolFigures[n].getXPos() + toolFigures[n].getInnerRadius() + $(toolCanvas).offset().left &&
+						e.pageX > toolFigures[n].getXPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().left &&
+						e.pageY < toolFigures[n].getYPos() + toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top &&
+						e.pageY > toolFigures[n].getYPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top){
+					currentFigure = clone(toolFigures[n]);
+					break;
+				}
+			}
+		}
+		dragok = true;
+		canvas.onmousemove = myMove;
+		toolCanvas.onmousemove = myMove;
+		interval = setInterval(draw, 50);
+
 	}
 
 	/**
-	 * Called when the user releases the mousebutton.
+	 * Called when the user releases the mouse button.
 	 */
 	function myUp(){
 		dragok = false;
 		canvas.onmousemove = null;
+		toolCanvas.onmousemove = null;
+		if(currentFigure != null){
+			//	clearInterval(interval);
+
+			try{
+				gm.placeGear(currentFigure);
+			}
+			catch(err){
+				if(startX > 0){
+					currentFigure.setXPos(startX);
+					currentFigure.setYPos(startY);
+					figures[figures.length] = currentFigure;
+					startX = 0;
+					startY = 0;
+				}					
+				console.log(err);
+			}
+			//figures[figures.length] = currentFigure;
+		}
+		currentFigure = null;
+		draw();
+		gm.printMatrix();
 	}
-	
-	//Only for testing
-	function animate(){
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		gm.tick();
-		gm.draw(ctx);
+
+
+	/**
+	 * Adds a gear to the toolbox. The gears x and y values are modified to
+	 * fit in the toolbox.
+	 */
+	function addToolboxGear(newGear){
+		newGear.setXPos((toolFigures.length + 1) * 50);
+		newGear.setYPos(35);
+		toolFigures[toolFigures.length] = newGear;
+	}
+
+	/**
+	 * Returns an exact copy of gear.
+	 */
+	function clone(gear){
+		return new Gear(nbrGears++, gear.getXPos(), gear.getYPos(), gear.getColor(), gear.getTransparency(),
+				gear.getSides(), gear.getInnerRadius(), gear.getOuterRadius(), gear.getAngle(),
+				12, 13);
 	}
 
 	init();
 	canvas.onmousedown = myDown;
 	canvas.onmouseup = myUp;
-	gm.start();
+	toolCanvas.onmousedown = myDown;
+	toolCanvas.onmouseup = myUp;
+
+	$("#start").click(function() {
+		gm.start();
+	});
 });
