@@ -206,7 +206,10 @@ Gear.prototype.rotate = function(angle) {
  *            the graphical context object
  */
 Gear.prototype.draw = function(ctx) {
-
+	
+	ctx.strokeStyle   = this.color;
+	ctx.globalAlpha = this.transparency;
+	
 	// check that sides is sufficient to build polygon
 	if (this.sides <= 2) {
 		throw ArgumentError("DrawingShapes.drawGear() - parameter 'sides' needs to be atleast 3");
@@ -225,20 +228,14 @@ Gear.prototype.draw = function(ctx) {
 				- (Math.sin(start) * this.outerRadius));
 		// draw lines
 		for ( var n = 1; n <= this.sides; ++n) {
-			var dx = this.x + Math.cos(start + (step * n) - (qtrStep * 3))
-					* this.innerRadius;
-			var dy = this.y - Math.sin(start + (step * n) - (qtrStep * 3))
-					* this.innerRadius;
+			var dx = this.x + Math.cos(start + (step * n) - (qtrStep * 3)) * this.innerRadius;
+			var dy = this.y - Math.sin(start + (step * n) - (qtrStep * 3)) * this.innerRadius;
 			ctx.lineTo(dx, dy);
-			dx = this.x + Math.cos(start + (step * n) - (qtrStep * 2))
-					* this.innerRadius;
-			dy = this.y - Math.sin(start + (step * n) - (qtrStep * 2))
-					* this.innerRadius;
+			dx = this.x + Math.cos(start + (step * n) - (qtrStep * 2)) * this.innerRadius;
+			dy = this.y - Math.sin(start + (step * n) - (qtrStep * 2)) * this.innerRadius;
 			ctx.lineTo(dx, dy);
-			dx = this.x + Math.cos(start + (step * n) - qtrStep)
-					* this.outerRadius;
-			dy = this.y - Math.sin(start + (step * n) - qtrStep)
-					* this.outerRadius;
+			dx = this.x + Math.cos(start + (step * n) - qtrStep) * this.outerRadius;
+			dy = this.y - Math.sin(start + (step * n) - qtrStep) * this.outerRadius;
 			ctx.lineTo(dx, dy);
 			dx = this.x + Math.cos(start + (step * n)) * this.outerRadius;
 			dy = this.y - Math.sin(start + (step * n)) * this.outerRadius;

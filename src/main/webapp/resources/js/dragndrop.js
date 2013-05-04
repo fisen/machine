@@ -43,8 +43,8 @@ $(document).ready(function () {
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 80;
 
-		addToolboxGear(new Gear(0, 0, 0, "black", 0, 13, 31, 26, 0, 12, 13));
-	//	addToolboxGear(new Gear(0, 0, 0, "black", 0, 13, 16, 8, 0, 12, 13));
+		addToolboxGear(new Gear(0, 0, 0, "black", 1, 13, 31, 26, 0, 12, 13));
+	//	addToolboxGear(new Gear(0, 0, 0, "black", 1, 13, 16, 8, 0, 12, 13));
 		
 		draw();
 	}
@@ -79,6 +79,7 @@ $(document).ready(function () {
 	function myMove(e){
 		if (dragok && currentFigure != null){
 			currentCanvas = e.target;
+			currentFigure.setTransparency(0.5);
 			currentFigure.setXPos(e.pageX - $(currentCanvas).offset().left);
 			currentFigure.setYPos(e.pageY - $(currentCanvas).offset().top);
 		}
@@ -130,8 +131,8 @@ $(document).ready(function () {
 		canvas.onmousemove = null;
 		toolCanvas.onmousemove = null;
 		if(currentFigure != null){
-			//	clearInterval(interval);
-
+			//clearInterval(interval);
+			currentFigure.setTransparency(1);
 			try{
 				gm.placeGear(currentFigure);
 			}
@@ -178,7 +179,50 @@ $(document).ready(function () {
 	toolCanvas.onmousedown = myDown;
 	toolCanvas.onmouseup = myUp;
 
-	$("#start").click(function() {
-		gm.start();
+	/**
+	 * Controlling play/pause button.
+	 */
+	var isPlaying = false;	
+	$("#play-pause").click(function() {
+		if (!isPlaying) {
+			gm.start();
+			$("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
+			isPlaying = true;
+		} else {
+			gm.stop();
+			$("#play-pause-icon").removeClass("icon-pause").addClass("icon-play");
+			isPlaying = false;
+		}
 	});
+
+	$("#speed-up").click(function() {
+		gm.setSpeed(gm.getSpeed() + 1);
+	});
+
+	$("#speed-down").click(function() {
+		gm.setSpeed(gm.getSpeed() - 1);
+	});
+
+	$("#zoom-in").click(function() {
+		ctx.scale(2,2);
+		ctx.save();
+		draw();
+		ctx.restore();
+	});
+
+	$("#zoom-out").click(function() {
+		ctx.scale(0.5,0.5);
+		ctx.save();
+		draw();
+		ctx.restore();
+	});
+
+	$("#undo").click(function() {
+	});
+
+	$("#redo").click(function() {
+	});
+
+	//Enables the about button to have a popover div.
+	$('#about').popover();
 });
