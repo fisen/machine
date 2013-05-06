@@ -57,17 +57,16 @@ $(document).ready(function () {
 	 */
 	function draw(){
 		clear();
-		for(var n=0; n < toolFigures.length; n++)
+		for(var n=0; n < toolFigures.length; n++) {
 			toolFigures[n].draw(toolCtx);
+		}
 
 		gm.step();
-		
-			gm.draw(ctx);
-		
-		//;
+		gm.draw(ctx);
 
-		if(currentFigure != null)
+		if(currentFigure != null) {
 			currentFigure.draw(currentCanvas.getContext("2d"));
+		}
 	}
 
 	/**
@@ -210,23 +209,47 @@ $(document).ready(function () {
 
 	$("#zoom-in").click(function() {
 		ctx.scale(2,2);
-		//ctx.save();
-		//draw();
-		//ctx.restore();
 	});
 
 	$("#zoom-out").click(function() {
-		
 		ctx.scale(0.5,0.5);
-		
-		//ctx.save();
-		//draw();
-		//ctx.restore();
+	});
+	
+	//Sets the currentCogWheel to the clicked one if someone is clicked.
+	var currentCogWheel = null;
+	$("#canvas").click(function(e) {
+	    var x = e.offsetX;
+	    var y = e.offsetY;
+
+	    clickedCogWheel = gm.getGearAt(x,y);
+	    
+		if (clickedCogWheel != null) {
+			$("#cog-settings").toggle();
+			currentCogWheel = clickedCogWheel;
+			$("#cog-settings").css({'top':window.event.clientY,'left':window.event.clientX + 10})
+		} else {
+			if ($('#cog-settings').is(':visible')) {
+				$("#cog-settings").toggle();
+			}
+		}
+	});
+	
+	//Updated the color of the latest clicked one
+	$('#cog-color').change(function() {
+		if (currentCogWheel != null) {
+			currentCogWheel.setColor($('#cog-color').val());
+		}
+	});
+	
+	//Updated the transparancy of the latest clicked one
+	$('#cog-transparancy').change(function() {
+		if (currentCogWheel != null) {
+			currentCogWheel.setTransparency($('#cog-transparancy').val()*0.1);
+		}
 	});
 
 	$("#undo").click(function() {
-		gearsArray[gearsArray.length] =gm.gears;
-		
+		gearsArray[gearsArray.length] = gm.gears;
 		gm.removeLastGear();
 
 	});

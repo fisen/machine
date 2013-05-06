@@ -47,82 +47,11 @@
   				<canvas id="canvas" class="span12">Your browser does not support canvas :-(</canvas>
   			</div>
 	</div>
-	
-	<script>
-	
-	/*
-	
-		// Here i define objects: hardcode actions will be called on gm
-		// TODO ID should be sequential to discuss
-		var rotAngle = 1;
-		var g0 = new Gear(0, 50, 50, "black", 0, 13, 31, 26, 0, 12, 13);
-		var g1 = new Gear(1, 70, 105, "black", 0, 13, 31, 26, 9, 7, 13);
-//		var g1 = new Gear(1, 70, 105, "black", 0, 13, 31, 26, 9, 7, 13);
-
-		
-		// overlap
-		var g2 = new Gear(2, 100, 200, "black", 0, 13, 31, 26, 9, 7, 13);
-
-		
-		// Then create machine and start it
-		var gm = new GearMachine();
-
-		
-
-		gm.placeGear(g0);
-		gm.placeGear(g1);
-		gm.placeGear(g2);
-
-		gm.setSpeed(2);
-		gm.start();
-		
-		//-----------------------------
-		
-		
-		
-		// Define the timer for the animation
-		window.requestAnimFrame = (function(callback) {
-			return window.requestAnimationFrame
-					|| window.webkitRequestAnimationFrame
-					|| window.mozRequestAnimationFrame
-					|| window.oRequestAnimationFrame
-					|| window.msRequestAnimationFrame || function(callback) {
-						window.setTimeout(callback, 1000 / 60);
-					};
-		})();
-
-		// Define the animate function
-		function animate() {
-			var canvas = document.getElementById('canvas');
-			var ctx = canvas.getContext('2d');
-
-			// Clear previous canvas
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-			//	Rotate gears
-	//		g0.rotate(-rotAngle);
-		//	g1.rotate(rotAngle);
-
-			// And Draw
-//			g0.draw(ctx);
-	//		g1.draw(ctx);
-
-			
-			gm.tick();
-			gm.draw(ctx);
-			
-			// request new frame
-			requestAnimFrame(function() {
-				animate();
-			});
-		}
-
-		// Start animation
-		animate();
-		
-		
-		*/
-		
-	</script>
+    <div id="cog-settings" style="display:none">
+        <p>Choose color</p>
+        <input type="color" id="cog-color">
+        <p>Choose opacaty</p>
+        <input type="range" id="cog-transparancy" min="1" max="10">
+    </div>
 </body>
 </html>
