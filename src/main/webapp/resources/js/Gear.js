@@ -24,7 +24,8 @@
  * @param color
  *            the color for this gear
  * @param transparency
- *            the value of transparency for this Gear
+ *            the value of transparency for this Gear. Set between 0.0 (fully
+ *            transparent) and 1.0 (no transparancy).
  * @param sides
  *            number of teeth on gear. (must be > 2)
  * @param innerRadius
@@ -206,56 +207,134 @@ Gear.prototype.rotate = function(angle) {
  *            the graphical context object
  */
 Gear.prototype.draw = function(ctx) {
-	
-	ctx.strokeStyle   = this.color;
-	ctx.globalAlpha = this.transparency;
-	
+
 	// check that sides is sufficient to build polygon
 	if (this.sides <= 2) {
-		throw ArgumentError("DrawingShapes.drawGear() - parameter 'sides' needs to be atleast 3");
+		throw "Gear.draw() - parameter 'sides' needs to be atleast 3";
+	}
+
+	// Before drawing we push context in the stack..
+	ctx.save();
+
+	// calculate length of sides
+	var step = (Math.PI * 2) / this.sides;
+	var qtrStep = step / 4;
+	// calculate starting angle in radians
+	var start = (this.angle / 180) * Math.PI;
+
+	ctx.beginPath();
+
+	ctx.moveTo(this.x + (Math.cos(start) * this.outerRadius), this.y
+			- (Math.sin(start) * this.outerRadius));
+	// draw lines
+	for ( var n = 1; n <= this.sides; ++n) {
+		var dx = this.x + Math.cos(start + (step * n) - (qtrStep * 3))
+				* this.innerRadius;
+		var dy = this.y - Math.sin(start + (step * n) - (qtrStep * 3))
+				* this.innerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n) - (qtrStep * 2))
+				* this.innerRadius;
+		dy = this.y - Math.sin(start + (step * n) - (qtrStep * 2))
+				* this.innerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n) - qtrStep) * this.outerRadius;
+		dy = this.y - Math.sin(start + (step * n) - qtrStep) * this.outerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n)) * this.outerRadius;
+		dy = this.y - Math.sin(start + (step * n)) * this.outerRadius;
+		ctx.lineTo(dx, dy);
+	}
+	ctx.closePath();
+	ctx.lineWidth = 2; // TODO ask team.. 1 or 2? wich u like more?
+	ctx.stroke();
+	ctx.fillStyle = this.color;
+
+	// 0.0 (fully transparent) - 1.0 (no transparancy).
+	ctx.globalAlpha = this.getTransparency();
+
+	ctx.fill();
+
+	// We draw the "hole" by using composite operation
+	ctx.globalCompositeOperation = 'destination-out';
+
+	// This is complete overkill... but I had it done already. :)
+	ctx.beginPath();
+	if (this.holeSides > 2) {
+		step = (Math.PI * 2) / this.holeSides;
+		ctx.moveTo(this.x + (Math.cos(start) * this.holeRadius), this.y
+				- (Math.sin(start) * this.holeRadius));
+		for (n = 1; n <= this.holeSides; ++n) {
+			dx = this.x + Math.cos(start + (step * n)) * this.holeRadius;
+			dy = this.y - Math.sin(start + (step * n)) * this.holeRadius;
+			ctx.lineTo(dx, dy);
+		}
+	}
+
+	ctx.closePath();
+	ctx.globalAlpha = 1.0; // needed for hole
+	ctx.fill();
+
+	// Finally we restore context to original state
+	ctx.restore();
+};
+
+/**
+ * Drawing function for this object.
+ * 
+ * @param ctx
+ *            the graphical context object
+ */
+Gear.prototype.drawOLD = function(ctx) {
+
+	// check that sides is sufficient to build polygon
+	if (this.sides <= 2) {
+		throw ArgumentError("Gear.draw() - parameter 'sides' needs to be atleast 3");
 		return;
 	}
-	if (this.sides > 2) {
-		// calculate length of sides
-		var step = (Math.PI * 2) / this.sides;
-		var qtrStep = step / 4;
-		// calculate starting angle in radians
-		var start = (this.angle / 180) * Math.PI;
+	// calculate length of sides
+	var step = (Math.PI * 2) / this.sides;
+	var qtrStep = step / 4;
+	// calculate starting angle in radians
+	var start = (this.angle / 180) * Math.PI;
 
-		ctx.beginPath();
+	ctx.beginPath();
 
-		ctx.moveTo(this.x + (Math.cos(start) * this.outerRadius), this.y
-				- (Math.sin(start) * this.outerRadius));
-		// draw lines
-		for ( var n = 1; n <= this.sides; ++n) {
-			var dx = this.x + Math.cos(start + (step * n) - (qtrStep * 3)) * this.innerRadius;
-			var dy = this.y - Math.sin(start + (step * n) - (qtrStep * 3)) * this.innerRadius;
-			ctx.lineTo(dx, dy);
-			dx = this.x + Math.cos(start + (step * n) - (qtrStep * 2)) * this.innerRadius;
-			dy = this.y - Math.sin(start + (step * n) - (qtrStep * 2)) * this.innerRadius;
-			ctx.lineTo(dx, dy);
-			dx = this.x + Math.cos(start + (step * n) - qtrStep) * this.outerRadius;
-			dy = this.y - Math.sin(start + (step * n) - qtrStep) * this.outerRadius;
-			ctx.lineTo(dx, dy);
-			dx = this.x + Math.cos(start + (step * n)) * this.outerRadius;
-			dy = this.y - Math.sin(start + (step * n)) * this.outerRadius;
-			ctx.lineTo(dx, dy);
-		}
-		// This is complete overkill... but I had it done already. :)
-		if (this.holeSides > 2) {
-			step = (Math.PI * 2) / this.holeSides;
-			ctx.moveTo(this.x + (Math.cos(start) * this.holeRadius), this.y
-					- (Math.sin(start) * this.holeRadius));
-			for (n = 1; n <= this.holeSides; ++n) {
-				dx = this.x + Math.cos(start + (step * n)) * this.holeRadius;
-				dy = this.y - Math.sin(start + (step * n)) * this.holeRadius;
-				ctx.lineTo(dx, dy);
-			}
-		}
-		ctx.stroke();
-		//ctx.fill();
-
+	ctx.moveTo(this.x + (Math.cos(start) * this.outerRadius), this.y
+			- (Math.sin(start) * this.outerRadius));
+	// draw lines
+	for ( var n = 1; n <= this.sides; ++n) {
+		var dx = this.x + Math.cos(start + (step * n) - (qtrStep * 3))
+				* this.innerRadius;
+		var dy = this.y - Math.sin(start + (step * n) - (qtrStep * 3))
+				* this.innerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n) - (qtrStep * 2))
+				* this.innerRadius;
+		dy = this.y - Math.sin(start + (step * n) - (qtrStep * 2))
+				* this.innerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n) - qtrStep) * this.outerRadius;
+		dy = this.y - Math.sin(start + (step * n) - qtrStep) * this.outerRadius;
+		ctx.lineTo(dx, dy);
+		dx = this.x + Math.cos(start + (step * n)) * this.outerRadius;
+		dy = this.y - Math.sin(start + (step * n)) * this.outerRadius;
+		ctx.lineTo(dx, dy);
 	}
+	// This is complete overkill... but I had it done already. :)
+	if (this.holeSides > 2) {
+		step = (Math.PI * 2) / this.holeSides;
+		ctx.moveTo(this.x + (Math.cos(start) * this.holeRadius), this.y
+				- (Math.sin(start) * this.holeRadius));
+		for (n = 1; n <= this.holeSides; ++n) {
+			dx = this.x + Math.cos(start + (step * n)) * this.holeRadius;
+			dy = this.y - Math.sin(start + (step * n)) * this.holeRadius;
+			ctx.lineTo(dx, dy);
+		}
+	}
+
+	ctx.stroke();
+
 };
 
 /**

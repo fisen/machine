@@ -13,18 +13,15 @@ function GearMachine() {// Create neighbor gear matrix using associative-array
 	this.startingGear = null; // starting gear for movement
 	this.gears = new Array(); // contains gears
 	this.gearMatrix = new Array(); // contains gear relationship
-	this.gearSpinDirections = new Array(); // contains gear directions: 1, 0,
-	// -1
+	this.gearSpinDirections = new Array(); // gear directions: 1, 0, -1
+	this.removedGears = new Array();
 
 };
 
-GearMachine.prototype.ATTACH_TOLERANCE = 10; // "tolerance" to decide wheter
-// gear
-// attach or not
+// "tolerance" to decide wheter gear attach or not
+GearMachine.prototype.ATTACH_TOLERANCE = 10;
 
 // Enum type for gear relationship
-// if (incommingEnum === DaysEnum.monday) //incommingEnum is monday
-
 GearMachine.prototype.GearRelation = Object.freeze({
 	"OVERLAP" : 1,
 	"NEIGHBOUR" : 2,
@@ -36,8 +33,7 @@ GearMachine.prototype.GearRelation = Object.freeze({
 // NOTE: first gear added to the system is the "active one"
 // It will start spinning clockwise
 
-// NOTE: dragging wheel to new position only calls placeGear
-
+// TODO optimize
 /**
  * This method is called when a gear is dropped in the workspace. Returns true
  * if gear correctly positioned, false otherwise.
@@ -67,7 +63,6 @@ GearMachine.prototype.placeGear = function(gear) {
 	} catch (err) {
 		throw err;
 	}
-	console.log("JAHA");
 
 	// then for graphical alignment, translate a bit gear, maybe rotate
 	// purpose is to make this wheel more "attached to neighbour"
@@ -81,13 +76,37 @@ GearMachine.prototype.placeGear = function(gear) {
 /**
  * This function is called when a gear is removed from the system
  * 
- * @param Gear
+ * @param gear
  *            the gear to be removed
  */
-GearMachine.prototype.removeGear = function(Gear) {
+GearMachine.prototype.removeGear = function(gear) {
 
-	// TODO
+	// Check if gear is in the system
+	// TODO: for the moment u cant remove starting gear
+	var index = this.gears.indexOf(gear);
+	if (index === -1 || gear === this.startingGear)
+		return false;
 
+	// Remove from the system
+	this.gears.splice(index, 1);
+
+	// Remove gearMatrix row
+	delete this.gearMatrix[gear]; // will mark entry as undefined, not
+
+	// Now remove cols
+	for ( var g in this.gearMatrix)
+		delete this.gearMatrix[g][gear];
+
+	// Delete spin dir
+	delete this.gearSpinDirections[gear];
+
+	// Set spin to 0 for all and traverse again
+	for ( var g in this.gearSpinDirections)
+		this.gearSpinDirections[g] = 0;
+
+	// Assign again spindirections from the starting gear
+	var isTraversed = new Array();
+	this._propagateSpin(1, this.startingGear, isTraversed);
 };
 
 /**
@@ -120,7 +139,9 @@ GearMachine.prototype.draw = function(ctx) { // FOR NOW: we will pass a
 	// TODO for the moment i draw everything, no need to check if they are "in
 	// view"
 	for ( var i = 0; i < this.gears.length; i++)
+		// this.gears[i].drawOLD(ctx);
 		this.gears[i].draw(ctx);
+
 };
 
 /**
@@ -183,8 +204,33 @@ GearMachine.prototype.printMatrix = function() {
 
 	}
 
-	alert(s);
+};
 
+/**
+ * This function retrieves the gear which contains the passed point
+ * 
+ * @param XPos
+ *            x coordinate
+ * @param YPos
+ *            y coordinate
+ * 
+ * @return a gear, null if no gear found
+ */
+GearMachine.prototype.getGearAt = function(XPos, YPos) {
+
+	for ( var i = 0; i < this.gears.length; i++) {
+		var g = this.gears[i];
+
+		// Get dist from gear center to clicked point
+		var dist = euclideanDist(XPos, YPos, g.getXPos(), g.getYPos());
+
+		// If distance is below radius we clicked "inside": return g
+		if (dist < g.getOuterRadius())
+			return g;
+	}
+
+	// Else no gear found
+	return null;
 };
 
 // //////////////////////////////////////////////////
@@ -418,6 +464,30 @@ GearMachine.prototype._alignGear = function(gear, neighbInfo) {
 
 	return gear;
 };
+
+/**Removes the last gear from the gears list. And store the removed gear in the 
+ * removed Gear array.
+*/
+GearMachine.prototype.removeLastGear= function(){
+	if(this.gears.length>1){
+		this.removedGears[this.removedGears.length]=this.gears[this.gears.length-1];
+		this.removeGear(this.gears[this.gears.length-1]);//(this.gears[this.gears.length-1]);
+	}
+};
+/**
+ * Put the gear
+ */
+GearMachine.prototype.redoRemovedGears= function(){
+	if(this.removedGears.length>0){
+		this.placeGear(this.removedGears[this.removedGears.length-1]);
+		
+		this.removedGears.pop();
+		
+		
+	}
+	
+};
+
 
 GearMachine.prototype._getClosestGear = function(xPos, yPos) {
 

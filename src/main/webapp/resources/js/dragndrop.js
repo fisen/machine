@@ -9,12 +9,6 @@ $(document).ready(function () {
 	var figures = new Array();
 	var toolFigures = new Array();
 
-	/*	var g0 = new Gear(0, 50, 35, "black", 0, 13, 31, 26, 0, 12, 13);
-	var g1 = new Gear(0, 200, 35, "black", 0, 13, 31, 26, 0, 12, 13);
-	gm.placeGear(g0);
-	gm.placeGear(g1);
-	figures[figures.length] = g0;
-	figures[figures.length] = g1; */
 
 	var canvas = null;
 	var ctx = null;
@@ -27,7 +21,9 @@ $(document).ready(function () {
 	var currentFigure = null;
 	var startX=0, startY=0;
 	var interval = null;
-	var nbrGears = 0;
+	var gearsArray = new Array();
+	var nbrGears =0;
+	
 
 	/**
 	 * Initializes the canvases with some test gears.
@@ -43,9 +39,8 @@ $(document).ready(function () {
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 80;
 
-		addToolboxGear(new Gear(0, 0, 0, "black", 1, 13, 31, 26, 0, 12, 13));
-	//	addToolboxGear(new Gear(0, 0, 0, "black", 1, 13, 16, 8, 0, 12, 13));
-		
+		addToolboxGear(new Gear(0, 0, 0, "#9796AB", 1, 13, 31, 26, 0, 12, 13));
+		interval = setInterval(draw, 50);
 		draw();
 	}
 
@@ -66,7 +61,10 @@ $(document).ready(function () {
 			toolFigures[n].draw(toolCtx);
 
 		gm.step();
-		gm.draw(ctx);
+		
+			gm.draw(ctx);
+		
+		//;
 
 		if(currentFigure != null)
 			currentFigure.draw(currentCanvas.getContext("2d"));
@@ -83,6 +81,7 @@ $(document).ready(function () {
 			currentFigure.setXPos(e.pageX - $(currentCanvas).offset().left);
 			currentFigure.setYPos(e.pageY - $(currentCanvas).offset().top);
 		}
+		ctx.save();	
 	}
 
 	/**
@@ -90,6 +89,7 @@ $(document).ready(function () {
 	 * Checks if a gear was pressed.
 	 */
 	function myDown(e){
+		
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
 			for(var n=0; n < figures.length; n++){
@@ -119,8 +119,7 @@ $(document).ready(function () {
 		dragok = true;
 		canvas.onmousemove = myMove;
 		toolCanvas.onmousemove = myMove;
-		interval = setInterval(draw, 50);
-
+		
 	}
 
 	/**
@@ -130,11 +129,15 @@ $(document).ready(function () {
 		dragok = false;
 		canvas.onmousemove = null;
 		toolCanvas.onmousemove = null;
+		
+		ctx.save();
+		
 		if(currentFigure != null){
 			//clearInterval(interval);
 			currentFigure.setTransparency(1);
 			try{
 				gm.placeGear(currentFigure);
+				
 			}
 			catch(err){
 				if(startX > 0){
@@ -143,12 +146,14 @@ $(document).ready(function () {
 					figures[figures.length] = currentFigure;
 					startX = 0;
 					startY = 0;
+					
 				}					
 				console.log(err);
 			}
 			//figures[figures.length] = currentFigure;
 		}
 		currentFigure = null;
+		
 		draw();
 		gm.printMatrix();
 	}
@@ -205,22 +210,29 @@ $(document).ready(function () {
 
 	$("#zoom-in").click(function() {
 		ctx.scale(2,2);
-		ctx.save();
-		draw();
-		ctx.restore();
+		//ctx.save();
+		//draw();
+		//ctx.restore();
 	});
 
 	$("#zoom-out").click(function() {
+		
 		ctx.scale(0.5,0.5);
-		ctx.save();
-		draw();
-		ctx.restore();
+		
+		//ctx.save();
+		//draw();
+		//ctx.restore();
 	});
 
 	$("#undo").click(function() {
+		gearsArray[gearsArray.length] =gm.gears;
+		
+		gm.removeLastGear();
+
 	});
 
 	$("#redo").click(function() {
+		gm.redoRemovedGears();
 	});
 
 	//Enables the about button to have a popover div.
