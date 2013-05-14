@@ -19,10 +19,16 @@ $(document).ready(function () {
 	var HEIGHT = window.innerHeight;
 	var dragok = false;
 	var currentFigure = null;
-	var startX=0, startY=0;
+	var startX = 0, startY = 0;
 	var interval = null;
 	var gearsArray = new Array();
-	var nbrGears =0;
+	var nbrGears = 0;
+    var scale = 1;
+	
+	//Used for map panning
+    var panningOk = false;
+	var startCoords = [];
+	var lastCoords = [0, 0];
 	
 
 	/**
@@ -48,16 +54,24 @@ $(document).ready(function () {
 	 * Clears both canvases
 	 */
 	function clear() {
-		ctx.clearRect(0, 0, WIDTH, HEIGHT);
-		toolCtx.clearRect(0, 0, WIDTH, 80);
+		// Store the current transformation matrix
+		ctx.save();
+
+		// Use the identity matrix while clearing the canvas
+		ctx.setTransform(1, 0, 0, 1, 0, 0);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		toolCtx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
+
+		// Restore the transform
+		ctx.restore();
 	}
 
 	/**
 	 * Draw the canvas. This method is called every 100 ms when the user presses the mouse.
 	 */
-	function draw(){
+	function draw() {
 		clear();
-		for(var n=0; n < toolFigures.length; n++) {
+		for (var n=0; n < toolFigures.length; n++) {
 			toolFigures[n].draw(toolCtx);
 		}
 
@@ -73,12 +87,18 @@ $(document).ready(function () {
 	 * Changes the x and y value for the figure that is currently
 	 * being dragged.
 	 */
-	function myMove(e){
+	function myMove(e) {
+	    var x = e.offsetX;
+	    var y = e.offsetY;
+	    
 		if (dragok && currentFigure != null){
 			currentCanvas = e.target;
 			currentFigure.setTransparency(0.5);
-			currentFigure.setXPos(e.pageX - $(currentCanvas).offset().left);
-			currentFigure.setYPos(e.pageY - $(currentCanvas).offset().top);
+			currentFigure.setXPos(x - lastCoords[0]);
+			currentFigure.setYPos(y - lastCoords[1]);
+		} else if (dragok && gm.getGearAt(x, y) == null && panningOk) {
+			//Dragging the workspace
+			ctx.setTransform(scale, 0, 0, scale, x - startCoords[0], y - startCoords[1]);
 		}
 		ctx.save();	
 	}
@@ -87,15 +107,19 @@ $(document).ready(function () {
 	 * Called when the user presses the mousebutton.
 	 * Checks if a gear was pressed.
 	 */
-	function myDown(e){
-		
+	function myDown(e) {
+
+	    if ($(e.target).attr("id") == "canvas") {
+	    	panningOk = true;
+	    }
+
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
 			for(var n=0; n < figures.length; n++){
 				if (e.pageX < figures[n].getXPos() + figures[n].getInnerRadius() + $(canvas).offset().left &&
 						e.pageX > figures[n].getXPos() - figures[n].getInnerRadius() + $(canvas).offset().left &&
 						e.pageY < figures[n].getYPos() + figures[n].getInnerRadius() + $(canvas).offset().top &&
-						e.pageY > figures[n].getYPos() - figures[n].getInnerRadius() + $(canvas).offset().top){
+						e.pageY > figures[n].getYPos() - figures[n].getInnerRadius() + $(canvas).offset().top) {
 					currentFigure = figures[n];
 					figures.splice(n, n+1);
 					startX = currentFigure.getXPos();
@@ -104,18 +128,24 @@ $(document).ready(function () {
 				}
 			}
 		}
-		else{
-			for(var n=0; n < toolFigures.length; n++){
+		else {
+			for (var n=0; n < toolFigures.length; n++) {
 				if (e.pageX < toolFigures[n].getXPos() + toolFigures[n].getInnerRadius() + $(toolCanvas).offset().left &&
 						e.pageX > toolFigures[n].getXPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().left &&
 						e.pageY < toolFigures[n].getYPos() + toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top &&
-						e.pageY > toolFigures[n].getYPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top){
+						e.pageY > toolFigures[n].getYPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top) {
 					currentFigure = clone(toolFigures[n]);
 					break;
 				}
 			}
 		}
 		dragok = true;
+		if (panningOk) {
+		    startCoords = [
+		                   e.offsetX - lastCoords[0],
+		                   e.offsetY - lastCoords[1]
+		                   ];
+		}
 		canvas.onmousemove = myMove;
 		toolCanvas.onmousemove = myMove;
 		
@@ -124,10 +154,16 @@ $(document).ready(function () {
 	/**
 	 * Called when the user releases the mouse button.
 	 */
-	function myUp(){
+	function myUp(e){
 		dragok = false;
 		canvas.onmousemove = null;
 		toolCanvas.onmousemove = null;
+		if (panningOk) {
+		    lastCoords = [
+		                  e.offsetX - startCoords[0], // set last coordinates
+		                  e.offsetY - startCoords[1]
+		                  ];
+		}
 		
 		ctx.save();
 		
@@ -136,9 +172,8 @@ $(document).ready(function () {
 			currentFigure.setTransparency(1);
 			try{
 				gm.placeGear(currentFigure);
-				
 			}
-			catch(err){
+			catch (err) {
 				if(startX > 0){
 					currentFigure.setXPos(startX);
 					currentFigure.setYPos(startY);
@@ -152,7 +187,7 @@ $(document).ready(function () {
 			//figures[figures.length] = currentFigure;
 		}
 		currentFigure = null;
-		
+		panningOk = false;
 		draw();
 		gm.printMatrix();
 	}
@@ -208,20 +243,24 @@ $(document).ready(function () {
 	});
 
 	$("#zoom-in").click(function() {
-		ctx.scale(2,2);
+		scale = scale * 1.2;
+		console.log(scale);
+		ctx.scale(1.2, 1.2);
 	});
 
 	$("#zoom-out").click(function() {
-		ctx.scale(0.5,0.5);
+		scale = scale * 0.8;
+		console.log(scale);
+		ctx.scale(0.8,0.8);
 	});
-	
-	//Sets the currentCogWheel to the clicked one if someone is clicked.
+
+	//Sets the currentCogWheel to the clicked one if someone is clicked and shows the settings for that wheel.
 	var currentCogWheel = null;
 	$("#canvas").click(function(e) {
 	    var x = e.offsetX;
 	    var y = e.offsetY;
-
-	    clickedCogWheel = gm.getGearAt(x,y);
+		
+	    clickedCogWheel = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
 	    
 		if (clickedCogWheel != null) {
 			$("#cog-settings").toggle();
@@ -247,6 +286,15 @@ $(document).ready(function () {
 			currentCogWheel.setTransparency($('#cog-transparancy').val()*0.1);
 		}
 	});
+	
+	//Updated deletes current cog wheel
+	$('#delete-wheel').click(function() {
+		if (currentCogWheel != null) {
+			console.log("del");
+			gm.removeGear(currentCogWheel);
+			$("#cog-settings").toggle();
+		}
+	});
 
 	$("#undo").click(function() {
 		gearsArray[gearsArray.length] = gm.gears;
@@ -260,4 +308,7 @@ $(document).ready(function () {
 
 	//Enables the about button to have a popover div.
 	$('#about').popover();
+	
+	
+	
 });

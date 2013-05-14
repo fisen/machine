@@ -1,5 +1,6 @@
-#main-canvas {
-	
+#canvas {
+    cursor: hand;
+    cursor: pointer;
 }
 #toolbox-canvas {
 	
