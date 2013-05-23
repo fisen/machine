@@ -20,7 +20,7 @@ $(document).ready(function () {
 	var dragok = false;
 	var currentFigure = null;
 	var startX = 0, startY = 0;
-	var interval = null;
+	var movingCogWheel = false;
 	var gearsArray = new Array();
 	var nbrGears = 0;
     var scale = 1;
@@ -45,9 +45,10 @@ $(document).ready(function () {
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 80;
 
-		addToolboxGear(new Gear(0, 0, 0, "#9796AB", 1, 13, 31, 26, 0, 12, 13));
-		interval = setInterval(draw, 50);
-		draw();
+		addToolboxGear(new Gear(0, 0, 0, "#0000CC", 1, 13, 36, 31, 0, 9, 15));
+		addToolboxGear(new Gear(0, 0, 0, "#FF0000", 1, 13, 31, 26, 0, 9, 13));
+		addToolboxGear(new Gear(0, 0, 0, "#00CC00", 1, 13, 26, 21, 0, 9, 11));
+		setInterval(draw, 50);
 	}
 
 	/**
@@ -92,6 +93,7 @@ $(document).ready(function () {
 	    var y = e.offsetY;
 	    
 		if (dragok && currentFigure != null){
+			movingCogWheel = true;
 			currentCanvas = e.target;
 			currentFigure.setTransparency(0.5);
 			currentFigure.setXPos(x - lastCoords[0]);
@@ -109,24 +111,20 @@ $(document).ready(function () {
 	 */
 	function myDown(e) {
 
-	    if ($(e.target).attr("id") == "canvas") {
-	    	panningOk = true;
-	    }
-
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
-			for(var n=0; n < figures.length; n++){
-				if (e.pageX < figures[n].getXPos() + figures[n].getInnerRadius() + $(canvas).offset().left &&
-						e.pageX > figures[n].getXPos() - figures[n].getInnerRadius() + $(canvas).offset().left &&
-						e.pageY < figures[n].getYPos() + figures[n].getInnerRadius() + $(canvas).offset().top &&
-						e.pageY > figures[n].getYPos() - figures[n].getInnerRadius() + $(canvas).offset().top) {
-					currentFigure = figures[n];
-					figures.splice(n, n+1);
-					startX = currentFigure.getXPos();
-					startY = currentFigure.getYPos();
-					break;
+			currentFigure = gm.getGearAt(e.pageX - $(canvas).offset().left, e.pageY - $(canvas).offset().top);
+			if(currentFigure != null){
+				if(!gm.active){
+                    startX = currentFigure.getXPos();
+                    startY = currentFigure.getYPos();
+                    gm.removeGear(currentFigure);
 				}
+				else
+					currentFigure = null;
 			}
+			else
+				panningOk = true;
 		}
 		else {
 			for (var n=0; n < toolFigures.length; n++) {
@@ -167,8 +165,7 @@ $(document).ready(function () {
 		
 		ctx.save();
 		
-		if(currentFigure != null){
-			//clearInterval(interval);
+		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
 				gm.placeGear(currentFigure);
@@ -184,11 +181,9 @@ $(document).ready(function () {
 				}					
 				console.log(err);
 			}
-			//figures[figures.length] = currentFigure;
 		}
 		currentFigure = null;
 		panningOk = false;
-		draw();
 		gm.printMatrix();
 	}
 
@@ -198,7 +193,11 @@ $(document).ready(function () {
 	 * fit in the toolbox.
 	 */
 	function addToolboxGear(newGear){
-		newGear.setXPos((toolFigures.length + 1) * 50);
+		var previousGear = toolFigures[toolFigures.length - 1];
+		if(previousGear != null)
+			newGear.setXPos(previousGear.getXPos() + previousGear.getInnerRadius() + previousGear.getOuterRadius() + 35);
+		else
+			newGear.setXPos(50);
 		newGear.setYPos(35);
 		toolFigures[toolFigures.length] = newGear;
 	}
@@ -209,7 +208,7 @@ $(document).ready(function () {
 	function clone(gear){
 		return new Gear(nbrGears++, gear.getXPos(), gear.getYPos(), gear.getColor(), gear.getTransparency(),
 				gear.getSides(), gear.getInnerRadius(), gear.getOuterRadius(), gear.getAngle(),
-				12, 13);
+				gear.getHoleSides(), gear.getHoleRadius());
 	}
 
 	init();
@@ -257,20 +256,24 @@ $(document).ready(function () {
 	//Sets the currentCogWheel to the clicked one if someone is clicked and shows the settings for that wheel.
 	var currentCogWheel = null;
 	$("#canvas").click(function(e) {
-	    var x = e.offsetX;
-	    var y = e.offsetY;
-		
-	    clickedCogWheel = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
-	    
-		if (clickedCogWheel != null) {
-			$("#cog-settings").toggle();
-			currentCogWheel = clickedCogWheel;
-			$("#cog-settings").css({'top':window.event.clientY,'left':window.event.clientX + 10})
-		} else {
-			if ($('#cog-settings').is(':visible')) {
+		if(!movingCogWheel){
+			var x = e.offsetX;
+		    var y = e.offsetY;
+			
+		    clickedCogWheel = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
+		    
+			if (clickedCogWheel != null) {
 				$("#cog-settings").toggle();
+				currentCogWheel = clickedCogWheel;
+				$("#cog-settings").css({'top':window.event.clientY,'left':window.event.clientX + 10});
+			} else {
+				if ($('#cog-settings').is(':visible')) {
+					$("#cog-settings").toggle();
+				}
 			}
 		}
+		else
+			movingCogWheel = false;
 	});
 	
 	//Updated the color of the latest clicked one

@@ -201,6 +201,22 @@ Gear.prototype.rotate = function(angle) {
 };
 
 /**
+ * 
+ * @returns hole radius of the gear
+ */
+Gear.prototype.getHoleRadius = function() {
+	return this.holeRadius;
+};
+
+/**
+ * 
+ * @returns hole sides of the gear
+ */
+Gear.prototype.getHoleSides = function() {
+	return this.holeSides;
+};
+
+/**
  * Drawing function for this object.
  * 
  * @param ctx
