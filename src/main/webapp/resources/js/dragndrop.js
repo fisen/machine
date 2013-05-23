@@ -24,6 +24,8 @@ $(document).ready(function () {
 	var gearsArray = new Array();
 	var nbrGears = 0;
     var scale = 1;
+    var neighbours = null;
+    var lastNeighbours = null;
 	
 	//Used for map panning
     var panningOk = false;
@@ -34,7 +36,7 @@ $(document).ready(function () {
 	/**
 	 * Initializes the canvases with some test gears.
 	 */
-	function init() {
+	function init() {		
 		canvas = (document.getElementById("canvas"));
 		ctx = canvas.getContext("2d");
 		ctx.canvas.width  = WIDTH;
@@ -48,6 +50,7 @@ $(document).ready(function () {
 		addToolboxGear(new Gear(0, 0, 0, "#0000CC", 1, 13, 36, 31, 0, 9, 15));
 		addToolboxGear(new Gear(0, 0, 0, "#FF0000", 1, 13, 31, 26, 0, 9, 13));
 		addToolboxGear(new Gear(0, 0, 0, "#00CC00", 1, 13, 26, 21, 0, 9, 11));
+		addToolboxGear(new Gear(0, 0, 0, "#FFCC33", 1, 13, 21, 16, 0, 9, 9));
 		setInterval(draw, 50);
 	}
 
@@ -98,6 +101,18 @@ $(document).ready(function () {
 			currentFigure.setTransparency(0.5);
 			currentFigure.setXPos(x - lastCoords[0]);
 			currentFigure.setYPos(y - lastCoords[1]);
+			
+			if($(currentCanvas).attr("id") == "canvas"){
+				neighbours = gm._getGearNeighboursInfo(currentFigure);
+				if(lastNeighbours != null && neighbours != lastNeighbours){
+					for(var i=0; i < lastNeighbours.list.length; i++)
+						lastNeighbours.list[i].gear.setTransparency(1);
+					for(var i=0; i < neighbours.list.length; i++)
+						neighbours.list[i].gear.setTransparency(0.5);
+				}
+				lastNeighbours = neighbours;
+			}
+			
 		} else if (dragok && gm.getGearAt(x, y) == null && panningOk) {
 			//Dragging the workspace
 			ctx.setTransform(scale, 0, 0, scale, x - startCoords[0], y - startCoords[1]);
@@ -182,6 +197,11 @@ $(document).ready(function () {
 				console.log(err);
 			}
 		}
+		for(var i=0; i < gm.gears.length; i++)
+			gm.gears[i].setTransparency(1);
+			
+		neighbours = null;
+		lastNeighbours = null;
 		currentFigure = null;
 		panningOk = false;
 		gm.printMatrix();
