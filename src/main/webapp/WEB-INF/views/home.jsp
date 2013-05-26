@@ -21,7 +21,7 @@
 </head>
 <body>
 	<div class="row-fluid">
-			<div id="accordion2">
+			<div id="accordion2" class="unselectable">
 				<div class="accordion-group">
                 <div class="accordion-heading">
                     <div class="btn-group">
