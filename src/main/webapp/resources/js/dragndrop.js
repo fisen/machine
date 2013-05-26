@@ -254,11 +254,17 @@ $(document).ready(function () {
 	});
 
 	$("#speed-up").click(function() {
-		gm.setSpeed(gm.getSpeed() + 1);
+		var speed = gm.getSpeed();
+		if (speed > -12) {
+			gm.setSpeed(speed - 1);
+		}
 	});
 
 	$("#speed-down").click(function() {
-		gm.setSpeed(gm.getSpeed() - 1);
+		var speed = gm.getSpeed();
+		if (speed < 12) {
+			gm.setSpeed(speed + 1);
+		}
 	});
 
 	$("#zoom-in").click(function() {
