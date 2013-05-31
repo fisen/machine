@@ -8,8 +8,8 @@ $(document).ready(function () {
 
 	var figures = new Array();
 	var toolFigures = new Array();
-
-
+	
+	var state = new UndoRedo();
 	var canvas = null;
 	var ctx = null;
 	var toolCanvas = null;
@@ -31,6 +31,7 @@ $(document).ready(function () {
     var panningOk = false;
 	var startCoords = [];
 	var lastCoords = [0, 0];
+	
 	
 
 	/**
@@ -168,7 +169,7 @@ $(document).ready(function () {
 	 * Called when the user releases the mouse button.
 	 */
 	function myUp(e){
-		dragok = false;
+		
 		canvas.onmousemove = null;
 		toolCanvas.onmousemove = null;
 		if (panningOk) {
@@ -183,18 +184,31 @@ $(document).ready(function () {
 		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
-				gm.placeGear(currentFigure);
+				if(dragok==true){
+					var a=new Array();
+					a.push("Delete");
+					a.push(currentFigure);
+					state.save(a);
+				}
+
+				if(gm.placeGear(currentFigure)==true){
+					
+				}else{
+					state.undo();
+				}
 			}
 			catch (err) {
+				state.undo();
+				state.undo();
 				if(startX > 0){
 					currentFigure.setXPos(startX);
 					currentFigure.setYPos(startY);
 					figures[figures.length] = currentFigure;
 					startX = 0;
 					startY = 0;
-					
+					console.log(err);
 				}					
-				console.log(err);
+				
 			}
 		}
 		for(var i=0; i < gm.gears.length; i++)
@@ -205,6 +219,7 @@ $(document).ready(function () {
 		currentFigure = null;
 		panningOk = false;
 		gm.printMatrix();
+		dragok = false;
 	}
 
 
@@ -305,13 +320,27 @@ $(document).ready(function () {
 	//Updated the color of the latest clicked one
 	$('#cog-color').change(function() {
 		if (currentCogWheel != null) {
-			currentCogWheel.setColor($('#cog-color').val());
+			var a = new Array();
+			var b = $('#cog-color').val();
+			a.push("Color");
+			a.push(currentCogWheel);
+			a.push(currentCogWheel.getColor());
+			a.push(b);
+			state.save(a);
+			currentCogWheel.setColor(b);
+			console.log(state.done.length);
 		}
 	});
 	
 	//Updated the transparancy of the latest clicked one
 	$('#cog-transparancy').change(function() {
 		if (currentCogWheel != null) {
+			//var a = new Array();
+			//a.push("Transparancy");
+			//a.push(currentCogWheel);
+			//a.push(b);
+			//a.push(currentCogWheel.getTransparency());
+			//state.save(a);
 			currentCogWheel.setTransparency($('#cog-transparancy').val()*0.1);
 		}
 	});
@@ -320,19 +349,46 @@ $(document).ready(function () {
 	$('#delete-wheel').click(function() {
 		if (currentCogWheel != null) {
 			console.log("del");
+			var a = new Array();
+			a.push("Add");
+			a.push(currentCogWheel);
+			state.save(a);
 			gm.removeGear(currentCogWheel);
 			$("#cog-settings").toggle();
 		}
 	});
 
 	$("#undo").click(function() {
-		gearsArray[gearsArray.length] = gm.gears;
-		gm.removeLastGear();
-
+		var a =state.undo();
+		console.log(a);
+		if(a!=undefined){
+			
+			if(a[0]=="first"){
+				state.save(first);
+				return;
+			}
+			if(a[0]=="Add"){
+				gm.placeGear(a[1]);
+				return;
+			}
+			if(a[0]=="Delete"){
+				gm.removeGear(a[1]);
+				return;
+			}
+			if(a[0]=="Color"){
+				console.log(a[2]);
+				a[1].setColor(a[2]);
+				return;
+			}
+			if(a[0]=="Transparancy"){
+				a[1].setTransparancy(a[2]);
+				return;
+			} 
+		}
 	});
 
 	$("#redo").click(function() {
-		gm.redoRemovedGears();
+		state.redo(gm);
 	});
 
 	//Enables the about button to have a popover div.

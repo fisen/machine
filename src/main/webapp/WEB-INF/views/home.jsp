@@ -14,6 +14,7 @@
 		<link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/bootstrap.min.css" />"></link>
         <link rel="stylesheet" type="text/css" href="<c:url value="/resources/css/font-awesome.min.css" />"></link>
 		
+		<script type="text/javascript" src="<c:url value="/resources/js/UndoRedo.js" />"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/Utility.js" />"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/Gear.js" />"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/GearMachine.js" />"></script>

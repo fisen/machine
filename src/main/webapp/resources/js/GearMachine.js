@@ -71,6 +71,7 @@ GearMachine.prototype.placeGear = function(gear) {
 
 	// Finally add gear to system and setup connections
 	this._setupConnections(gear, neighbInfo);
+	return true;
 };
 
 /**
