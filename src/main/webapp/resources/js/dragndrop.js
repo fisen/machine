@@ -126,11 +126,13 @@ $(document).ready(function () {
 	 * Checks if a gear was pressed.
 	 */
 	function myDown(e) {
-
+		var x = e.offsetX;
+	    var y = e.offsetY;
+	    
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
-			currentFigure = gm.getGearAt(e.pageX - $(canvas).offset().left, e.pageY - $(canvas).offset().top);
-			if(currentFigure != null){
+			currentFigure = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
+			if(currentFigure != null) {
 				if(!gm.active){
                     startX = currentFigure.getXPos();
                     startY = currentFigure.getYPos();
@@ -201,8 +203,8 @@ $(document).ready(function () {
 				state.undo();
 				state.undo();
 				if(startX > 0){
-					currentFigure.setXPos(startX);
-					currentFigure.setYPos(startY);
+					currentFigure.setXPos(startX - lastCoords[0]);
+					currentFigure.setYPos(startY - lastCoords[1]);
 					figures[figures.length] = currentFigure;
 					startX = 0;
 					startY = 0;
