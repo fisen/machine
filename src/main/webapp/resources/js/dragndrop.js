@@ -100,10 +100,11 @@ $(document).ready(function () {
 			movingCogWheel = true;
 			currentCanvas = e.target;
 			currentFigure.setTransparency(0.5);
-			currentFigure.setXPos(x - lastCoords[0]);
-			currentFigure.setYPos(y - lastCoords[1]);
-			
-			if($(currentCanvas).attr("id") == "canvas"){
+			currentFigure.setXPos(x);
+			currentFigure.setYPos(y);
+			if($(currentCanvas).attr("id") == "canvas") {
+				currentFigure.setXPos((x - lastCoords[0])/scale);
+				currentFigure.setYPos((y - lastCoords[1])/scale);
 				neighbours = gm._getGearNeighboursInfo(currentFigure);
 				if(lastNeighbours != null && neighbours != lastNeighbours){
 					for(var i=0; i < lastNeighbours.list.length; i++)
@@ -195,7 +196,7 @@ $(document).ready(function () {
 
 				if(gm.placeGear(currentFigure)==true){
 					
-				}else{
+				} else {
 					state.undo();
 				}
 			}
