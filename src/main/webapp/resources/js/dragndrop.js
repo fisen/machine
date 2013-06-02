@@ -205,7 +205,7 @@ $(document).ready(function () {
 				if(startX > 0){
 					currentFigure.setXPos(startX - lastCoords[0]);
 					currentFigure.setYPos(startY - lastCoords[1]);
-					figures[figures.length] = currentFigure;
+					gm.placeGear(currentFigure);
 					startX = 0;
 					startY = 0;
 					console.log(err);
