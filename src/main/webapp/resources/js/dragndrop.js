@@ -4,21 +4,35 @@
 
 $(document).ready(function () {
 
-	var gm = new GearMachine();
+	var canvas = (document.getElementById("canvas"));
+	var toolCanvas = (document.getElementById("toolbox-canvas"));
+	
+	var canvasPaintManager = new PaintManager(canvas);
+	var toolCanvasPaintManager = new PaintManager(toolCanvas);
+	
+	var gm = new GearMachine(canvasPaintManager);
+	
+	canvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(gm, 0, 0, window.innerWidth, window.innerHeight - 100));
+	
+	var animationEngine = new AnimationEngine(1, 15, self);
+	
+	animationEngine.addAnimatableObject(gm, 1, 1);
+	animationEngine.startEngine();
 
 	var figures = new Array();
 	var toolFigures = new Array();
 	
 	var state = new UndoRedo();
-	var canvas = null;
+	//var canvas = null;
 	var ctx = null;
-	var toolCanvas = null;
+	//var toolCanvas = null;
 	var toolCtx = null;
 	var currentCanvas = null;
 	var WIDTH = window.innerWidth;
 	var HEIGHT = window.innerHeight;
 	var dragok = false;
 	var currentFigure = null;
+	var currentFigureGfx = null;
 	var startX = 0, startY = 0;
 	var movingCogWheel = false;
 	var gearsArray = new Array();
@@ -38,12 +52,11 @@ $(document).ready(function () {
 	 * Initializes the canvases with some test gears.
 	 */
 	function init() {		
-		canvas = (document.getElementById("canvas"));
 		ctx = canvas.getContext("2d");
 		ctx.canvas.width  = WIDTH;
 		ctx.canvas.height = HEIGHT - 100;
 
-		toolCanvas = (document.getElementById("toolbox-canvas"));
+		
 		toolCtx = toolCanvas.getContext("2d");
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 80;
@@ -52,40 +65,7 @@ $(document).ready(function () {
 		addToolboxGear(new Gear(0, 0, 0, "#FF0000", 1, 13, 31, 26, 0, 9, 13));
 		addToolboxGear(new Gear(0, 0, 0, "#00CC00", 1, 13, 26, 21, 0, 9, 11));
 		addToolboxGear(new Gear(0, 0, 0, "#FFCC33", 1, 13, 21, 16, 0, 9, 9));
-		setInterval(draw, 50);
-	}
-
-	/**
-	 * Clears both canvases
-	 */
-	function clear() {
-		// Store the current transformation matrix
-		ctx.save();
-
-		// Use the identity matrix while clearing the canvas
-		ctx.setTransform(1, 0, 0, 1, 0, 0);
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		toolCtx.clearRect(0, 0, toolCanvas.width, toolCanvas.height);
-
-		// Restore the transform
-		ctx.restore();
-	}
-
-	/**
-	 * Draw the canvas. This method is called every 100 ms when the user presses the mouse.
-	 */
-	function draw() {
-		clear();
-		for (var n=0; n < toolFigures.length; n++) {
-			toolFigures[n].draw(toolCtx);
-		}
-
-		gm.step();
-		gm.draw(ctx);
-
-		if(currentFigure != null) {
-			currentFigure.draw(currentCanvas.getContext("2d"));
-		}
+		//setInterval(draw, 5);
 	}
 
 	/**
@@ -97,12 +77,18 @@ $(document).ready(function () {
 	    var y = e.offsetY;
 	    
 		if (dragok && currentFigure != null){
+			var lastCanvas = currentCanvas;
 			movingCogWheel = true;
 			currentCanvas = e.target;
 			currentFigure.setTransparency(0.5);
 			currentFigure.setXPos(x);
 			currentFigure.setYPos(y);
 			if($(currentCanvas).attr("id") == "canvas") {
+				
+				if (lastCanvas !== currentCanvas) {
+					toolCanvasPaintManager.removeBasePaintableObject(currentFigureGfx);
+					canvasPaintManager.addBasePaintableObject(currentFigureGfx);
+				}
 				currentFigure.setXPos((x - lastCoords[0])/scale);
 				currentFigure.setYPos((y - lastCoords[1])/scale);
 				neighbours = gm._getGearNeighboursInfo(currentFigure);
@@ -113,13 +99,20 @@ $(document).ready(function () {
 						neighbours.list[i].gear.setTransparency(0.5);
 				}
 				lastNeighbours = neighbours;
+			} else {
+				if (lastCanvas !== currentCanvas) {
+					canvasPaintManager.removeBasePaintableObject(currentFigureGfx);
+					toolCanvasPaintManager.addBasePaintableObject(currentFigureGfx);
+				}
 			}
-			
+			canvasPaintManager.repaint();
+			toolCanvasPaintManager.repaint();
 		} else if (dragok && gm.getGearAt(x, y) == null && panningOk) {
 			//Dragging the workspace
-			ctx.setTransform(scale, 0, 0, scale, x - startCoords[0], y - startCoords[1]);
+			canvasPaintManager.setCanvasTransformValues(x - startCoords[0], y - startCoords[1]);
+			canvasPaintManager.repaint();
 		}
-		ctx.save();	
+		ctx.save();
 	}
 
 	/**
@@ -138,11 +131,11 @@ $(document).ready(function () {
                     startX = currentFigure.getXPos();
                     startY = currentFigure.getYPos();
                     gm.removeGear(currentFigure);
+                    currentFigureGfx = canvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(currentFigure, 0, 0, canvas.width, canvas.height))
 				}
 				else
 					currentFigure = null;
-			}
-			else
+			} else
 				panningOk = true;
 		}
 		else {
@@ -152,6 +145,7 @@ $(document).ready(function () {
 						e.pageY < toolFigures[n].getYPos() + toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top &&
 						e.pageY > toolFigures[n].getYPos() - toolFigures[n].getInnerRadius() + $(toolCanvas).offset().top) {
 					currentFigure = clone(toolFigures[n]);
+					currentFigureGfx = toolCanvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(currentFigure, 0, 0, canvas.width, canvas.height))
 					break;
 				}
 			}
@@ -223,6 +217,12 @@ $(document).ready(function () {
 		panningOk = false;
 		gm.printMatrix();
 		dragok = false;
+		
+		canvasPaintManager.removeBasePaintableObject(currentFigureGfx);
+		toolCanvasPaintManager.removeBasePaintableObject(currentFigureGfx);
+		
+		canvasPaintManager.repaint();
+		toolCanvasPaintManager.repaint();
 	}
 
 
@@ -238,6 +238,8 @@ $(document).ready(function () {
 			newGear.setXPos(50);
 		newGear.setYPos(35);
 		toolFigures[toolFigures.length] = newGear;
+		toolCanvasPaintManager.addBasePaintableObject(toolCanvasPaintManager.createPaintableObject(newGear, 0, 0, toolCanvas.width, toolCanvas.height));
+		toolCanvasPaintManager.repaint();
 	}
 
 	/**
@@ -262,10 +264,12 @@ $(document).ready(function () {
 	$("#play-pause").click(function() {
 		if (!isPlaying) {
 			gm.start();
+			animationEngine.startAnimation(gm);
 			$("#play-pause-icon").removeClass("icon-play").addClass("icon-pause");
 			isPlaying = true;
 		} else {
 			gm.stop();
+			animationEngine.stopAnimation(gm);
 			$("#play-pause-icon").removeClass("icon-pause").addClass("icon-play");
 			isPlaying = false;
 		}
@@ -288,13 +292,17 @@ $(document).ready(function () {
 	$("#zoom-in").click(function() {
 		scale = scale * 1.2;
 		console.log(scale);
-		ctx.scale(1.2, 1.2);
+		canvasPaintManager.setCanvasScaleValue(scale);
+		canvasPaintManager.repaint();
+		toolCanvasPaintManager.repaint();
 	});
 
 	$("#zoom-out").click(function() {
 		scale = scale * 0.8;
 		console.log(scale);
-		ctx.scale(0.8,0.8);
+		canvasPaintManager.setCanvasScaleValue(scale);
+		canvasPaintManager.repaint();
+		toolCanvasPaintManager.repaint();
 	});
 
 	//Sets the currentCogWheel to the clicked one if someone is clicked and shows the settings for that wheel.
@@ -338,12 +346,6 @@ $(document).ready(function () {
 	//Updated the transparancy of the latest clicked one
 	$('#cog-transparancy').change(function() {
 		if (currentCogWheel != null) {
-			//var a = new Array();
-			//a.push("Transparancy");
-			//a.push(currentCogWheel);
-			//a.push(b);
-			//a.push(currentCogWheel.getTransparency());
-			//state.save(a);
 			currentCogWheel.setTransparency($('#cog-transparancy').val()*0.1);
 		}
 	});

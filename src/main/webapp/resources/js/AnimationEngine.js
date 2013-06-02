@@ -7,24 +7,16 @@
  * 
  * @param amountOfLayers a number [1, N] of layers wanted.
  * @param maximumSpeed the engine's (maximum). This is the interval, in milliseconds, that the engine will run.
- * @param window the window containing the canvas containing the context to be used for drawing by the animatableObjects.
  */
 function AnimationEngine(amountOfLayers, maximumSpeed, window) { // Error
 																	// handling,
 																	// defensive
-																	// programming,
-																	// testing
-																	// with
-																	// canvas
-																	// instead
-																	// of
-																	// canvasManager
+																	// programming
 	this.engineTimerID; //used to store a reference to the timer which the engine is based on.
 	this.maximumSpeed = maximumSpeed; // speed 1 = maximumSpeed, speed x =
 										// maximumSpeed * x, speed is the
 										// interval in milliseconds
 	this.window = window;
-	this.canvas = document.getElementById('canvas');
 	this.engineRunning = false;
 	this.frameCounter = 0; //used to determine which animations to update, based on their relative speed value.
 	this.layers = []; // Background = layer 0
@@ -95,7 +87,7 @@ AnimationEngine.prototype.startAnimation = function(animatableObject) {
  * @param animatableObject the animatableObject which you want to stop animate.
  */
 AnimationEngine.prototype.stopAnimation = function(animatableObject) {
-	var animation = _getAnimation(animatableObject);
+	var animation = this._getAnimation(animatableObject);
 	if (animation !== null) { //True if the animatableObject exists within an Animation within this engine.
 		animation.setRunning(false);
 	}
@@ -229,8 +221,6 @@ AnimationEngine.prototype.stopEngine = function() { //Could be merged with start
  * "Private" function used within the startEngine function to use in the spawned timers.
  */
 AnimationEngine.prototype._runEngine = function() {// Do defensive programming
-		var context = this.canvas.getContext('2d');
-		context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		
 		for (var i = 0; i < this.layers.length; i++) { //Loop through the layers starting with the back one.
 			var animations = this._getLayer(i).getAnimations();
@@ -241,7 +231,7 @@ AnimationEngine.prototype._runEngine = function() {// Do defensive programming
 						&& (this.frameCounter % animations[k].getSpeedValue()) === 0) { //True if Animation is running and it is time to update it's state.
 					animations[k].step();
 				}
-				animations[k].draw(context); //Want to have a graphics manager who redraws instead, and just let the engine(s) "step" the Animations.
+				//animations[k].draw(context); //Want to have a graphics manager who redraws instead, and just let the engine(s) "step" the Animations.
 			}
 		}
 	this.frameCounter++;

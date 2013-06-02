@@ -19,6 +19,11 @@
 		<script type="text/javascript" src="<c:url value="/resources/js/Gear.js" />"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/GearMachine.js" />"></script>
 		<script type="text/javascript" src="<c:url value="/resources/js/dragndrop.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/resources/js/Animation.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/resources/js/AnimationEngine.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/resources/js/AnimationLayer.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/resources/js/PaintManager.js" />"></script>
+        <script type="text/javascript" src="<c:url value="/resources/js/PaintableObject.js" />"></script>
 </head>
 <body>
 	<div class="row-fluid">

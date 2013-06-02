@@ -79,12 +79,15 @@ Animation.prototype.step = function() {
 	this.animatableObject.step();
 };
 
+
 /**
  * Function that tells the object to redraw itself.
  * @param context the context to draw on.
  */
+/*
 Animation.prototype.draw = function(context) {
 	this.animatableObject.draw(context);
 };
+*/
 
 

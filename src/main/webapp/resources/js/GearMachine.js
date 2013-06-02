@@ -5,8 +5,10 @@
  * @Author Magnus Larsson, Marco Dondio
  */
 
-function GearMachine() {// Create neighbor gear matrix using associative-array
+function GearMachine(paintManager) {// Create neighbor gear matrix using associative-array
 
+	this.paintManager = paintManager;
+	
 	this.active = false; // machine starts in off mode
 	this.speed = 1; // default speed
 
@@ -126,6 +128,8 @@ GearMachine.prototype.step = function() {
 
 		g.rotate((this.speed * dir));
 	}
+	
+	this.paintManager.repaint();
 };
 
 /**
