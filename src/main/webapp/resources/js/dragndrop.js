@@ -304,7 +304,7 @@ $(document).ready(function () {
 			var x = e.offsetX;
 		    var y = e.offsetY;
 			
-		    clickedCogWheel = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
+		    clickedCogWheel = gm.getGearAt((x - lastCoords[0])/scale, (y - lastCoords[1])/scale);
 		    
 			if (clickedCogWheel != null) {
 				$("#cog-settings").toggle();
