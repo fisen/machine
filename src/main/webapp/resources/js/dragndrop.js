@@ -393,6 +393,10 @@ $(document).ready(function () {
 	$("#redo").click(function() {
 		state.redo(gm);
 	});
+	
+	$("#help").click(function() {
+		alert("test");
+	});
 
 	//Enables the about button to have a popover div.
 	$('#about').popover();

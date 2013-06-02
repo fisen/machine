@@ -36,6 +36,7 @@
                         <a class="btn" id="zoom-in" href="#"><i class="icon-zoom-in icon-large"></i></a>
                     </div>
                     <a id="about" href="#" class="btn btn-info" rel="popover" data-placement="bottom" data-original-title="Machine" data-content="This is project inspired from spirographs. Play around with the cogwheel's by draging them into the big area and push the play button.">About</a>
+                    <a id="help" href="#" class="btn btn-warning">Help</a>
                 </div>
                 <div id="collapseOne" class="accordion-body collapse in">
 						<div class="accordion-inner">
