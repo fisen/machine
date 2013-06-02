@@ -132,7 +132,7 @@ $(document).ready(function () {
 	    
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
-			currentFigure = gm.getGearAt(x - lastCoords[0], y - lastCoords[1]);
+			currentFigure = gm.getGearAt((x - lastCoords[0])/scale, (y - lastCoords[1])/scale);
 			if(currentFigure != null) {
 				if(!gm.active){
                     startX = currentFigure.getXPos();
