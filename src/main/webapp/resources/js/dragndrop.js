@@ -6,22 +6,22 @@ $(document).ready(function () {
 
 	var canvas = (document.getElementById("canvas"));
 	var toolCanvas = (document.getElementById("toolbox-canvas"));
-	
+
 	var canvasPaintManager = new PaintManager(canvas);
 	var toolCanvasPaintManager = new PaintManager(toolCanvas);
-	
+
 	var gm = new GearMachine(canvasPaintManager);
-	
+
 	canvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(gm, 0, 0, window.innerWidth, window.innerHeight - 100));
-	
+
 	var animationEngine = new AnimationEngine(1, 15, self);
-	
+
 	animationEngine.addAnimatableObject(gm, 1, 1);
 	animationEngine.startEngine();
 
 	var figures = new Array();
 	var toolFigures = new Array();
-	
+
 	var state = new UndoRedo();
 	//var canvas = null;
 	var ctx = null;
@@ -37,16 +37,16 @@ $(document).ready(function () {
 	var movingCogWheel = false;
 	var gearsArray = new Array();
 	var nbrGears = 0;
-    var scale = 1;
-    var neighbours = null;
-    var lastNeighbours = null;
+	var scale = 1;
+	var neighbours = null;
+	var lastNeighbours = null;
 	var c = 0;
 	//Used for map panning
-    var panningOk = false;
+	var panningOk = false;
 	var startCoords = [];
 	var lastCoords = [0, 0];
-	
-	
+
+
 
 	/**
 	 * Initializes the canvases with some test gears.
@@ -56,7 +56,7 @@ $(document).ready(function () {
 		ctx.canvas.width  = WIDTH;
 		ctx.canvas.height = HEIGHT - 100;
 
-		
+
 		toolCtx = toolCanvas.getContext("2d");
 		toolCtx.canvas.width  = window.innerWidth;
 		toolCtx.canvas.height = 100;
@@ -73,9 +73,9 @@ $(document).ready(function () {
 	 * being dragged.
 	 */
 	function myMove(e) {
-	    var x = e.offsetX;
-	    var y = e.offsetY;
-	    
+		var x = e.offsetX;
+		var y = e.offsetY;
+
 		if (dragok && currentFigure != null){
 			var lastCanvas = currentCanvas;
 			movingCogWheel = true;
@@ -84,7 +84,7 @@ $(document).ready(function () {
 			currentFigure.setXPos(x);
 			currentFigure.setYPos(y);
 			if($(currentCanvas).attr("id") == "canvas") {
-				
+
 				if (lastCanvas !== currentCanvas) {
 					toolCanvasPaintManager.removeBasePaintableObject(currentFigureGfx);
 					canvasPaintManager.addBasePaintableObject(currentFigureGfx);
@@ -121,17 +121,17 @@ $(document).ready(function () {
 	 */
 	function myDown(e) {
 		var x = e.offsetX;
-	    var y = e.offsetY;
-	    
+		var y = e.offsetY;
+
 		currentCanvas = e.target;
 		if($(currentCanvas).attr("id") == "canvas"){
 			currentFigure = gm.getGearAt((x - lastCoords[0])/scale, (y - lastCoords[1])/scale);
 			if(currentFigure != null) {
 				if(!gm.active){
-                    startX = currentFigure.getXPos();
-                    startY = currentFigure.getYPos();
-                    gm.removeGear(currentFigure);
-                    currentFigureGfx = canvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(currentFigure, 0, 0, canvas.width, canvas.height))
+					startX = currentFigure.getXPos();
+					startY = currentFigure.getYPos();
+					gm.removeGear(currentFigure);
+					currentFigureGfx = canvasPaintManager.addBasePaintableObject(canvasPaintManager.createPaintableObject(currentFigure, 0, 0, canvas.width, canvas.height))
 				}
 				else
 					currentFigure = null;
@@ -152,48 +152,48 @@ $(document).ready(function () {
 		}
 		dragok = true;
 		if (panningOk) {
-		    startCoords = [
-		                   e.offsetX - lastCoords[0],
-		                   e.offsetY - lastCoords[1]
-		                   ];
+			startCoords = [
+			               e.offsetX - lastCoords[0],
+			               e.offsetY - lastCoords[1]
+			               ];
 		}
 		canvas.onmousemove = myMove;
 		toolCanvas.onmousemove = myMove;
-		
+
 	}
 
 	/**
 	 * Called when the user releases the mouse button.
 	 */
 	function myUp(e){
-		
+
 		canvas.onmousemove = null;
 		toolCanvas.onmousemove = null;
 		if (panningOk) {
-		    lastCoords = [
-		                  e.offsetX - startCoords[0], // set last coordinates
-		                  e.offsetY - startCoords[1]
-		                  ];
+			lastCoords = [
+			              e.offsetX - startCoords[0], // set last coordinates
+			              e.offsetY - startCoords[1]
+			              ];
 		}
-		
+
 		ctx.save();
-		
+
 		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
-					if(c!=gm.gears.length){
-						var a= new Array();
-						a.push("Delete");
-						a.push(currentFigure);
-						console.log(a);
-						state.save(a);
-						
-						console.log(c);
-					}	
+				if(c!=gm.gears.length){
+					var a= new Array();
+					a.push("Delete");
+					a.push(currentFigure);
+					console.log(a);
+					state.save(a);
+
+					console.log(c);
+				}	
 
 				c = gm.gears.length;
 				gm.placeGear(currentFigure);
-				
+
 			}
 			catch (err) {
 				if(startX > 0){
@@ -204,22 +204,22 @@ $(document).ready(function () {
 					startY = 0;
 					console.log(err);
 				}					
-				
+
 			}
 		}
 		for(var i=0; i < gm.gears.length; i++)
 			gm.gears[i].setTransparency(1);
-			
+
 		neighbours = null;
 		lastNeighbours = null;
 		currentFigure = null;
 		panningOk = false;
 		gm.printMatrix();
 		dragok = false;
-		
+
 		canvasPaintManager.removeBasePaintableObject(currentFigureGfx);
 		toolCanvasPaintManager.removeBasePaintableObject(currentFigureGfx);
-		
+
 		canvasPaintManager.repaint();
 		toolCanvasPaintManager.repaint();
 	}
@@ -293,6 +293,7 @@ $(document).ready(function () {
 		console.log(scale);
 		canvasPaintManager.setCanvasScaleValue(scale);
 		canvasPaintManager.repaint();
+	});
 
 	$("#zoom-out").click(function() {
 		scale = scale * 0.8;
@@ -306,10 +307,10 @@ $(document).ready(function () {
 	$("#canvas").click(function(e) {
 		if(!movingCogWheel){
 			var x = e.offsetX;
-		    var y = e.offsetY;
-			
-		    clickedCogWheel = gm.getGearAt((x - lastCoords[0])/scale, (y - lastCoords[1])/scale);
-		    
+			var y = e.offsetY;
+
+			clickedCogWheel = gm.getGearAt((x - lastCoords[0])/scale, (y - lastCoords[1])/scale);
+
 			if (clickedCogWheel != null) {
 				$("#cog-settings").toggle();
 				currentCogWheel = clickedCogWheel;
@@ -323,7 +324,7 @@ $(document).ready(function () {
 		else
 			movingCogWheel = false;
 	});
-	
+
 	//Updated the color of the latest clicked one
 	$('#cog-color').change(function() {
 		if (currentCogWheel != null) {
@@ -338,14 +339,14 @@ $(document).ready(function () {
 			console.log(state.done.length);
 		}
 	});
-	
+
 	//Updated the transparancy of the latest clicked one
 	$('#cog-transparancy').change(function() {
 		if (currentCogWheel != null) {
 			currentCogWheel.setTransparency($('#cog-transparancy').val()*0.1);
 		}
 	});
-	
+
 	//Updated deletes current cog wheel
 	$('#delete-wheel').click(function() {
 		if (currentCogWheel != null) {
@@ -363,18 +364,18 @@ $(document).ready(function () {
 		var a =state.undo();
 		console.log(a);
 		if(a!=undefined){
-			
+
 			if(a[0]=="first"){
 				state.save(first);
-				
+
 			}
 			if(a[0]=="Add"){
 				gm.placeGear(a[1]);
-				
+
 			}
 			if(a[0]=="Delete"){
 				gm.removeGear(a[1]);
-				
+
 			}
 			if(a[0]=="Color"){
 				console.log(a[2]);
@@ -392,7 +393,7 @@ $(document).ready(function () {
 		canvasPaintManager.repaint();
 		toolCanvasPaintManager.repaint();
 	});
-	
+
 	$("#help").click(function() {
 		$("#glasspane").css({display:"block"});
 
@@ -404,17 +405,17 @@ $(document).ready(function () {
 		var offsetsGoal = $('#toolbox-canvas').offset();
 		var goalPointTop = offsetsGoal.top + 40;
 		var goalPointLeft = offsetsGoal.left + 30;
-		
+
 		var diffLeft = startPointLeft - goalPointLeft;
 		var diffTop = startPointTop - goalPointTop;
-		
+
 		setTimeout(function() {
 			$("#cursor-image").animate({"left": "-="+diffLeft, "top": "-="+diffTop}, "slow", function() {
-				
+
 				var pointerOffset = $('#cursor-image').offset();
 				var pointerPosY = pointerOffset.top + 10;
 				var pointerPosX = pointerOffset.left + 10;
-				
+
 				$("#text-glasspane").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
 				$("#text-glasspane").css({display: "block"});
 			});
@@ -427,29 +428,29 @@ $(document).ready(function () {
 		var pointerPosX = pointerOffset.left - 10;
 		$("#cursor-image").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
 		$("#cursor-image").attr("src", 'resources/img/cursor_with_cog.png');
-		
+
 		setTimeout(function() {
 			$("#cursor-image").animate({"left": "+="+100, "top": "+="+ 100}, "slow", function() {
-				
+
 				var pointerOffset = $('#cursor-image').offset();
 				var pointerPosY = pointerOffset.top + 75;
 				var pointerPosX = pointerOffset.left + 75;
-				
+
 				$("#text-glasspane2").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
 				$("#text-glasspane2").css({display: "block"});
 			});
 		},1000);
 	});
-	
+
 	$("#text-glasspane-button2").click(function() {
 		$("#glasspane").css({display:"none"});
 		$("#cursor-image").attr("src", 'http://www.lmsify.com/cursor.png');
 	});
-	
+
 	//Enables the about button to have a popover div.
 	$('#about').popover();
-	
+
 	$("#glasspane").css({height:$(window).height()});
 	$("#glasspane").css({width:$(window).width()});
-	
 });
+
