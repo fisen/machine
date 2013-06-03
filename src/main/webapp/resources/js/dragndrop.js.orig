@@ -181,6 +181,7 @@ $(document).ready(function () {
 		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
+<<<<<<< HEAD
 					if(c!=gm.gears.length){
 						var a= new Array();
 						a.push("Delete");
@@ -190,6 +191,14 @@ $(document).ready(function () {
 						
 						console.log(c);
 					}	
+=======
+				if(dragok==true) {
+					var a=new Array();
+					a.push("Delete");
+					a.push(currentFigure);
+					state.save(a);
+				}
+>>>>>>> 2bc3b70bfd76ed5094ff9ee27de0966a086bd479
 
 				c = gm.gears.length;
 				gm.placeGear(currentFigure);
@@ -293,6 +302,7 @@ $(document).ready(function () {
 		console.log(scale);
 		canvasPaintManager.setCanvasScaleValue(scale);
 		canvasPaintManager.repaint();
+	});
 
 	$("#zoom-out").click(function() {
 		scale = scale * 0.8;
@@ -382,7 +392,10 @@ $(document).ready(function () {
 			}
 		}
 		canvasPaintManager.repaint();
+<<<<<<< HEAD
 		toolCanvasPaintManager.repaint();
+=======
+>>>>>>> 2bc3b70bfd76ed5094ff9ee27de0966a086bd479
 	});
 
 
@@ -390,7 +403,9 @@ $(document).ready(function () {
 	$("#redo").click(function() {
 		state.redo(gm);
 		canvasPaintManager.repaint();
+<<<<<<< HEAD
 		toolCanvasPaintManager.repaint();
+=======
 	});
 	
 	$("#help").click(function() {
@@ -419,6 +434,7 @@ $(document).ready(function () {
 				$("#text-glasspane").css({display: "block"});
 			});
 		},1000);
+>>>>>>> 2bc3b70bfd76ed5094ff9ee27de0966a086bd479
 	});
 
 	$("#text-glasspane-button1").click(function() {

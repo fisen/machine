@@ -4,7 +4,6 @@
 <html>
 <head>
 		<meta charset="utf-8">
-		<meta charset="utf-8">
 		<title>Machine</title>
 
 		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -26,7 +25,25 @@
         <script type="text/javascript" src="<c:url value="/resources/js/PaintableObject.js" />"></script>
 </head>
 <body>
+    <div id="glasspane">
+        <div id="text-glasspane" class="pull-right alert alert-success">
+            <h4>Grab cogwheels</h4>
+            You can drag the wheels in the toolbox by clicking and dragging.<br/>
+            <button id="text-glasspane-button1" type="button" class="btn" data-dismiss="alert">Next</button>
+        </div>
+        <div id="text-glasspane2" class="pull-right alert alert-success">
+            <h4>Release cogwheels</h4>
+            You can realse the cogwheels inside this area. Then try to start the machine by pushing the play button.<br/>
+            <button id="text-glasspane-button2" type="button" class="btn" data-dismiss="alert">Finish</button>
+        </div>
+        <img id="cursor-image" src="http://www.lmsify.com/cursor.png">
+    </div>
 	<div class="row-fluid">
+            <div class="alert alert-block">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Welcome to the machine!</h4>
+                Check it out!
+            </div>
 			<div id="accordion2" class="unselectable">
 				<div class="accordion-group">
                 <div class="accordion-heading">
@@ -40,8 +57,8 @@
                         <a class="btn" id="zoom-out" href="#"><i class="icon-zoom-out icon-large"></i></a>
                         <a class="btn" id="zoom-in" href="#"><i class="icon-zoom-in icon-large"></i></a>
                     </div>
-                    <a id="about" href="#" class="btn btn-info" rel="popover" data-placement="bottom" data-original-title="Machine" data-content="This is project inspired from spirographs. Play around with the cogwheel's by draging them into the big area and push the play button.">About</a>
-                    <a id="help" href="#" class="btn btn-warning">Help</a>
+                    <a id="about" href="#" class="btn btn-info" rel="popover" data-placement="bottom" data-original-title="Machine" data-content="This is project inspired from spirographs. Play around with it and have fun!">About</a>
+                    <a id="help" href="#" class="btn btn-warning">Tutorial</a>
                 </div>
                 <div id="collapseOne" class="accordion-body collapse in">
 						<div class="accordion-inner">
