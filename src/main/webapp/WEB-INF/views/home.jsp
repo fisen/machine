@@ -28,12 +28,12 @@
     <div id="glasspane">
         <div id="text-glasspane" class="pull-right alert alert-success">
             <h4>Grab cogwheels</h4>
-            You can drag the wheels in the toolbox by clicking and dragging.
+            You can drag the wheels in the toolbox by clicking and dragging.<br/>
             <button id="text-glasspane-button1" type="button" class="btn" data-dismiss="alert">Next</button>
         </div>
         <div id="text-glasspane2" class="pull-right alert alert-success">
             <h4>Release cogwheels</h4>
-            You can realse the cogwheels inside this area. Try start the machine pushing the play button
+            You can realse the cogwheels inside this area. Then try to start the machine by pushing the play button.<br/>
             <button id="text-glasspane-button2" type="button" class="btn" data-dismiss="alert">Finish</button>
         </div>
         <img id="cursor-image" src="http://www.lmsify.com/cursor.png">
@@ -57,7 +57,7 @@
                         <a class="btn" id="zoom-out" href="#"><i class="icon-zoom-out icon-large"></i></a>
                         <a class="btn" id="zoom-in" href="#"><i class="icon-zoom-in icon-large"></i></a>
                     </div>
-                    <a id="about" href="#" class="btn btn-info" rel="popover" data-placement="bottom" data-original-title="Machine" data-content="This is project inspired from spirographs. Play around with the cogwheel's by draging them into the big area and push the play button.">About</a>
+                    <a id="about" href="#" class="btn btn-info" rel="popover" data-placement="bottom" data-original-title="Machine" data-content="This is project inspired from spirographs. Play around with it and have fun!">About</a>
                     <a id="help" href="#" class="btn btn-warning">Help</a>
                 </div>
                 <div id="collapseOne" class="accordion-body collapse in">
