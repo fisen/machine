@@ -57,8 +57,8 @@
     <div id="cog-settings" style="display:none">
         <p>Choose color</p>
         <input type="color" id="cog-color">
-        <p>Choose opacity</p>
-        <input type="range" id="cog-transparancy" min="1" max="10">
+        <!--  <p>Choose opacity</p>
+        <input type="range" id="cog-transparancy" min="1" max="10">-->
         <a class="btn btn-danger" id="delete-wheel" href="#"><i class="icon-trash icon-large"></i> Delete</a>
     </div>
 </body>

@@ -40,7 +40,7 @@ $(document).ready(function () {
     var scale = 1;
     var neighbours = null;
     var lastNeighbours = null;
-	
+	var c = 0;
 	//Used for map panning
     var panningOk = false;
 	var startCoords = [];
@@ -181,22 +181,21 @@ $(document).ready(function () {
 		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
-				if(dragok==true){
-					var a=new Array();
-					a.push("Delete");
-					a.push(currentFigure);
-					state.save(a);
-				}
+					if(c!=gm.gears.length){
+						var a= new Array();
+						a.push("Delete");
+						a.push(currentFigure);
+						console.log(a);
+						state.save(a);
+						
+						console.log(c);
+					}	
 
-				if(gm.placeGear(currentFigure)==true){
-					
-				} else {
-					state.undo();
-				}
+				c = gm.gears.length;
+				gm.placeGear(currentFigure);
+				
 			}
 			catch (err) {
-				state.undo();
-				state.undo();
 				if(startX > 0){
 					currentFigure.setXPos(startX - lastCoords[0]);
 					currentFigure.setYPos(startY - lastCoords[1]);
@@ -370,34 +369,31 @@ $(document).ready(function () {
 			
 			if(a[0]=="first"){
 				state.save(first);
-				return;
+				
 			}
 			if(a[0]=="Add"){
 				gm.placeGear(a[1]);
-				return;
+				
 			}
 			if(a[0]=="Delete"){
 				gm.removeGear(a[1]);
-				return;
+				
 			}
 			if(a[0]=="Color"){
 				console.log(a[2]);
 				a[1].setColor(a[2]);
-				return;
 			}
-			if(a[0]=="Transparancy"){
-				a[1].setTransparancy(a[2]);
-				return;
-			} 
 		}
+		canvasPaintManager.repaint();
+		toolCanvasPaintManager.repaint();
 	});
+
+
 
 	$("#redo").click(function() {
 		state.redo(gm);
-	});
-	
-	$("#help").click(function() {
-		alert("test");
+		canvasPaintManager.repaint();
+		toolCanvasPaintManager.repaint();
 	});
 
 	//Enables the about button to have a popover div.

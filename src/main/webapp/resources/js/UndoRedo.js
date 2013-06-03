@@ -62,4 +62,7 @@ UndoRedo.prototype.redo = function( gm){
 		console.log("done.length: "+ this.done.length);
 		console.log("unDone.length: "+ this.unDone.length);
 	}
+	UndoRedo.prototype.del = function (){
+		this.done.pop();	
+	};
 };
