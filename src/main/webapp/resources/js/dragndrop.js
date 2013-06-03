@@ -59,7 +59,7 @@ $(document).ready(function () {
 		
 		toolCtx = toolCanvas.getContext("2d");
 		toolCtx.canvas.width  = window.innerWidth;
-		toolCtx.canvas.height = 80;
+		toolCtx.canvas.height = 100;
 
 		addToolboxGear(new Gear(0, 0, 0, "#0000CC", 1, 13, 36, 31, 0, 9, 15));
 		addToolboxGear(new Gear(0, 0, 0, "#FF0000", 1, 13, 31, 26, 0, 9, 13));
@@ -181,7 +181,7 @@ $(document).ready(function () {
 		if(currentFigure != null && $(e.target).attr("id") == "canvas"){
 			currentFigure.setTransparency(1);
 			try{
-				if(dragok==true){
+				if(dragok==true) {
 					var a=new Array();
 					a.push("Delete");
 					a.push(currentFigure);
@@ -294,7 +294,6 @@ $(document).ready(function () {
 		console.log(scale);
 		canvasPaintManager.setCanvasScaleValue(scale);
 		canvasPaintManager.repaint();
-		toolCanvasPaintManager.repaint();
 	});
 
 	$("#zoom-out").click(function() {
@@ -302,7 +301,6 @@ $(document).ready(function () {
 		console.log(scale);
 		canvasPaintManager.setCanvasScaleValue(scale);
 		canvasPaintManager.repaint();
-		toolCanvasPaintManager.repaint();
 	});
 
 	//Sets the currentCogWheel to the clicked one if someone is clicked and shows the settings for that wheel.
@@ -390,19 +388,71 @@ $(document).ready(function () {
 				return;
 			} 
 		}
+		canvasPaintManager.repaint();
 	});
 
 	$("#redo").click(function() {
 		state.redo(gm);
+		canvasPaintManager.repaint();
 	});
 	
 	$("#help").click(function() {
-		alert("test");
+		$("#glasspane").css({display:"block"});
+
+		var offsetsStart = $('#help').offset();
+		var startPointTop = offsetsStart.top + 20;
+		var startPointLeft = offsetsStart.left + 20;
+		$("#cursor-image").css({"top": startPointTop+"px", "left": startPointLeft+"px"});
+
+		var offsetsGoal = $('#toolbox-canvas').offset();
+		var goalPointTop = offsetsGoal.top + 40;
+		var goalPointLeft = offsetsGoal.left + 30;
+		
+		var diffLeft = startPointLeft - goalPointLeft;
+		var diffTop = startPointTop - goalPointTop;
+		
+		setTimeout(function() {
+			$("#cursor-image").animate({"left": "-="+diffLeft, "top": "-="+diffTop}, "slow", function() {
+				
+				var pointerOffset = $('#cursor-image').offset();
+				var pointerPosY = pointerOffset.top + 10;
+				var pointerPosX = pointerOffset.left + 10;
+				
+				$("#text-glasspane").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
+				$("#text-glasspane").css({display: "block"});
+			});
+		},1000);
 	});
 
+	$("#text-glasspane-button1").click(function() {
+		var pointerOffset = $('#cursor-image').offset();
+		var pointerPosY = pointerOffset.top - 10;
+		var pointerPosX = pointerOffset.left - 10;
+		$("#cursor-image").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
+		$("#cursor-image").attr("src", 'resources/img/cursor_with_cog.png');
+		
+		setTimeout(function() {
+			$("#cursor-image").animate({"left": "+="+100, "top": "+="+ 100}, "slow", function() {
+				
+				var pointerOffset = $('#cursor-image').offset();
+				var pointerPosY = pointerOffset.top + 75;
+				var pointerPosX = pointerOffset.left + 75;
+				
+				$("#text-glasspane2").css({"top": pointerPosY+"px", "left": pointerPosX+"px"});
+				$("#text-glasspane2").css({display: "block"});
+			});
+		},1000);
+	});
+	
+	$("#text-glasspane-button2").click(function() {
+		$("#glasspane").css({display:"none"});
+		$("#cursor-image").attr("src", 'http://www.lmsify.com/cursor.png');
+	});
+	
 	//Enables the about button to have a popover div.
 	$('#about').popover();
 	
-	
+	$("#glasspane").css({height:$(window).height()});
+	$("#glasspane").css({width:$(window).width()});
 	
 });

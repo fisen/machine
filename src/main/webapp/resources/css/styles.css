@@ -8,6 +8,29 @@
 	user-select: none;
 }
 
+.alert {
+    margin-bottom: 2px !important;    
+}
+
+#glasspane {
+    z-index: 1000;
+    position: absolute;
+    background-color: white;
+    opacity: 0.7;
+    display: none;
+}
+
+#text-glasspane, #text-glasspane2 {
+    position:absolute;
+    display: none;
+}
+
+#cursor-image {
+    position: absolute;
+    left: 20%;
+    top: 20%;
+}
+
 #canvas {
     cursor: hand;
     cursor: pointer;

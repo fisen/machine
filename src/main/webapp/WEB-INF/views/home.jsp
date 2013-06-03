@@ -4,7 +4,6 @@
 <html>
 <head>
 		<meta charset="utf-8">
-		<meta charset="utf-8">
 		<title>Machine</title>
 
 		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -26,7 +25,25 @@
         <script type="text/javascript" src="<c:url value="/resources/js/PaintableObject.js" />"></script>
 </head>
 <body>
+    <div id="glasspane">
+        <div id="text-glasspane" class="pull-right alert alert-success">
+            <h4>Grab cogwheels</h4>
+            You can drag the wheels in the toolbox by clicking and dragging.
+            <button id="text-glasspane-button1" type="button" class="btn" data-dismiss="alert">Next</button>
+        </div>
+        <div id="text-glasspane2" class="pull-right alert alert-success">
+            <h4>Release cogwheels</h4>
+            You can realse the cogwheels inside this area. Try start the machine pushing the play button
+            <button id="text-glasspane-button2" type="button" class="btn" data-dismiss="alert">Finish</button>
+        </div>
+        <img id="cursor-image" src="http://www.lmsify.com/cursor.png">
+    </div>
 	<div class="row-fluid">
+            <div class="alert alert-block">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4>Welcome to the machine!</h4>
+                Check it out!
+            </div>
 			<div id="accordion2" class="unselectable">
 				<div class="accordion-group">
                 <div class="accordion-heading">
